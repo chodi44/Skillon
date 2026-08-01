@@ -1,27 +1,18 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { SkyShell, TopBar, PageHero, Panel } from "@/components/site-header";
-import { useSkillon, slugify } from "@/lib/skillon-store";
-import { ArrowRight, Sparkle, CheckCircle2, Users } from "lucide-react";
+import { useEffect } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { SkyShell } from "@/components/site-header";
+import { useAuth } from "@/lib/auth";
+import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Skillon — Crack GATE. Get the job." },
-      { name: "description", content: "Daily learning OS for a 9-member cohort: curriculum, checkable items, cohort analytics." },
-      { property: "og:title", content: "Skillon — Crack GATE. Get the job." },
-      { property: "og:description", content: "Daily plan. Track progress. Beat GATE 2026." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { name: "description", content: "Daily learning OS for a 9-member cohort." },
     ],
   }),
   component: Landing,
 });
-
-import { useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { useAuth } from "@/lib/auth";
-import { SkyShell } from "@/components/site-header";
-import { Loader2 } from "lucide-react";
 
 function Landing() {
   const { ready, user, isSuperAdmin } = useAuth();
