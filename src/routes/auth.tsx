@@ -133,27 +133,44 @@ function AuthPage() {
           <h3 className="font-display text-xs uppercase tracking-wider text-slate-500 mb-3 text-center">
             Quick Login Helpers
           </h3>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 mb-3">
             <button
               type="button"
               onClick={() => {
                 setUsername("praveenadmin@chodi.com");
                 setPassword("Chodi@765");
               }}
-              className="rounded-xl bg-[#fff4cf] hover:bg-[#ffe69a] p-2 text-xs font-bold text-[#12121a] transition-colors shadow-sm"
+              className="col-span-2 rounded-xl bg-[#fff4cf] hover:bg-[#ffe69a] p-2.5 text-[13px] font-bold text-[#12121a] transition-colors shadow-sm ring-1 ring-black/5"
             >
-              👑 Fill Admin
+              👑 Super Admin (Praveen)
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                setUsername("24A31A43E2");
-                setPassword("ishana");
-              }}
-              className="rounded-xl bg-white hover:bg-slate-100 p-2 text-xs font-bold text-slate-800 transition-colors shadow-sm"
-            >
-              🎓 Fill Student
-            </button>
+          </div>
+          
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { roll: "24A31A43E2", pass: "ishana", name: "Ishana" },
+              { roll: "24A31A43E3", pass: "hasini", name: "Hasini" },
+              { roll: "24A31A43D7", pass: "kruthika", name: "Kruthika" },
+              { roll: "24A31A43F0", pass: "bhuvana", name: "Bhuvana" },
+              { roll: "24A31A43G8", pass: "praveen", name: "Praveen" },
+              { roll: "24A31A43H3", pass: "mourya", name: "Mourya" },
+              { roll: "24A31A43H7", pass: "masthan", name: "Masthan" },
+              { roll: "24A31A43I3", pass: "ganeshneeli", name: "Ganesh" },
+              { roll: "24A31A43I6", pass: "Rahul", name: "Rahul" },
+            ].map((student) => (
+              <button
+                key={student.roll}
+                type="button"
+                onClick={() => {
+                  setUsername(student.roll);
+                  setPassword(student.pass);
+                }}
+                className="rounded-lg bg-white/70 hover:bg-white p-2 text-[11px] font-semibold text-slate-700 transition-colors shadow-sm ring-1 ring-black/5 truncate"
+                title={`${student.name} (${student.roll})`}
+              >
+                {student.name}
+              </button>
+            ))}
           </div>
         </div>
 
