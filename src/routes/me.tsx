@@ -552,6 +552,7 @@ function NotesTab() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [search, setSearch] = useState("");
 
   const open = notes.find((n) => n.id === openId) ?? null;
 
@@ -562,37 +563,77 @@ function NotesTab() {
     }
   }, [openId]);
 
+  const filtered = notes.filter((n) =>
+    (n.title + n.body).toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(`${title}\n\n${body}`);
+    alert("Note copied to clipboard!");
+  };
+
+  const handleEmail = () => {
+    const subject = encodeURIComponent(title || "Skillon Note");
+    const mailBody = encodeURIComponent(body);
+    window.location.href = `mailto:?subject=${subject}&body=${mailBody}`;
+  };
+
   return (
     <div className="space-y-4">
       {!open && (
         <>
-          <button
-            onClick={() => {
-              const id = addNote("New note", "");
-              setOpenId(id);
-            }}
-            className="w-full btn-primary rounded-2xl py-3 text-[13px]"
-          >
-            <Plus className="h-4 w-4 inline -mt-0.5" /> New note
-          </button>
-          {notes.length === 0 && (
-            <div className="card-glass p-6 text-center text-black/60 text-[13px]">
-              No notes yet. Jot down anything — only you can see this.
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-black/40" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search notes..."
+                className="w-full rounded-2xl bg-white/40 pl-9 pr-3 py-3 text-[13px] text-black outline-none placeholder:text-black/40 ring-1 ring-black/5 focus:ring-black/20"
+              />
+            </div>
+            <button
+              onClick={() => {
+                const id = addNote("New note", "");
+                setOpenId(id);
+              }}
+              className="btn-primary rounded-2xl px-4 py-3 text-[13px] shrink-0 shadow-md shadow-butter/20"
+            >
+              <Plus className="h-4 w-4 inline -mt-0.5" />
+            </button>
+          </div>
+
+          {notes.length === 0 && !search && (
+            <div className="card-glass p-8 text-center border border-dashed border-black/10">
+              <div className="mx-auto w-12 h-12 rounded-full bg-black/5 flex items-center justify-center mb-3">
+                <StickyNote className="h-6 w-6 text-black/30" />
+              </div>
+              <div className="text-[14px] font-bold text-black/70">No notes yet</div>
+              <div className="text-[12px] text-black/50 mt-1">Jot down anything — only you can see this.</div>
             </div>
           )}
-          <div className="space-y-2">
-            {notes.map((n) => (
+
+          {search && filtered.length === 0 && (
+            <div className="text-center text-[12px] text-white/50 py-4">No matching notes found.</div>
+          )}
+
+          <div className="grid gap-3">
+            {filtered.map((n) => (
               <button
                 key={n.id}
                 onClick={() => setOpenId(n.id)}
-                className="w-full card-glass p-4 text-left"
+                className="w-full card-glass p-5 text-left group hover:ring-butter/50 transition-all"
               >
-                <div className="font-display text-[16px] text-black leading-tight">{n.title}</div>
-                <div className="mt-1 text-[12px] text-black/60 line-clamp-2 whitespace-pre-wrap">
-                  {n.body || "Empty"}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="font-display text-[17px] text-black leading-tight group-hover:text-[#12121a]">
+                    {n.title || "Untitled"}
+                  </div>
+                  <div className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-black/40 whitespace-nowrap">
+                    {new Date(n.updatedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                  </div>
                 </div>
-                <div className="mt-2 text-[10px] font-bold uppercase tracking-widest text-black/40">
-                  {new Date(n.updatedAt).toLocaleString()}
+                <div className="mt-2 text-[13px] text-black/60 line-clamp-3 leading-relaxed">
+                  {n.body || <span className="italic text-black/30">Empty note</span>}
                 </div>
               </button>
             ))}
@@ -601,47 +642,73 @@ function NotesTab() {
       )}
 
       {open && (
-        <div className="card-glass p-4 space-y-3">
-          <div className="flex items-center gap-2">
+        <div className="card-glass p-1 h-[calc(100vh-140px)] flex flex-col">
+          <div className="flex items-center justify-between p-2 pb-3 border-b border-black/5">
             <button
               onClick={() => setOpenId(null)}
-              className="rounded-lg bg-black/10 px-2 py-1 text-[11px] font-bold text-black"
+              className="rounded-lg bg-black/5 hover:bg-black/10 px-3 py-1.5 text-[12px] font-bold text-black transition-colors"
             >
               ← Back
             </button>
-            <button
-              onClick={() => {
-                if (confirm("Delete this note?")) {
-                  removeNote(open.id);
-                  setOpenId(null);
-                }
-              }}
-              className="ml-auto rounded-lg bg-black/10 px-2 py-1 text-[11px] font-bold text-black"
-            >
-              <Trash2 className="h-3.5 w-3.5 inline -mt-0.5" /> Delete
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={handleCopy}
+                title="Copy to clipboard"
+                className="grid h-8 w-8 place-items-center rounded-lg bg-black/5 hover:bg-black/10 text-black/70 transition-colors"
+              >
+                <Copy className="h-4 w-4" />
+              </button>
+              <button
+                onClick={handleEmail}
+                title="Send via Email"
+                className="grid h-8 w-8 place-items-center rounded-lg bg-black/5 hover:bg-black/10 text-black/70 transition-colors"
+              >
+                <Mail className="h-4 w-4" />
+              </button>
+              <div className="w-px h-4 bg-black/10 mx-1" />
+              <button
+                onClick={() => {
+                  if (confirm("Delete this note?")) {
+                    removeNote(open.id);
+                    setOpenId(null);
+                  }
+                }}
+                title="Delete"
+                className="grid h-8 w-8 place-items-center rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 transition-colors"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
           </div>
-          <input
-            value={title}
-            onChange={(e) => {
-              setTitle(e.target.value);
-              updateNote(open.id, { title: e.target.value });
-            }}
-            className="w-full rounded-xl bg-black/5 px-3 py-2 font-display text-[18px] text-black outline-none"
-            placeholder="Title"
-          />
-          <textarea
-            value={body}
-            onChange={(e) => {
-              setBody(e.target.value);
-              updateNote(open.id, { body: e.target.value });
-            }}
-            rows={14}
-            className="w-full rounded-xl bg-black/5 px-3 py-2 text-[14px] text-black outline-none whitespace-pre-wrap"
-            placeholder="Write freely…"
-          />
-          <div className="text-[10px] font-bold uppercase tracking-widest text-black/40">
-            saved · {new Date(open.updatedAt).toLocaleTimeString()}
+          
+          <div className="flex-1 flex flex-col p-3 gap-2 overflow-y-auto">
+            <input
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                updateNote(open.id, { title: e.target.value });
+              }}
+              className="w-full bg-transparent px-1 py-2 font-display text-[22px] text-black outline-none placeholder:text-black/30"
+              placeholder="Note Title"
+            />
+            <textarea
+              value={body}
+              onChange={(e) => {
+                setBody(e.target.value);
+                updateNote(open.id, { body: e.target.value });
+              }}
+              className="w-full flex-1 resize-none bg-transparent px-1 py-2 text-[15px] text-black/80 leading-relaxed outline-none placeholder:text-black/30"
+              placeholder="Write freely..."
+            />
+          </div>
+
+          <div className="flex items-center justify-between p-3 border-t border-black/5 bg-black/[0.02] rounded-b-[20px]">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-black/40">
+              {body.length > 0 ? body.trim().split(/\s+/).length : 0} words · {body.length} chars
+            </div>
+            <div className="text-[10px] font-bold uppercase tracking-widest text-black/40">
+              Saved {new Date(open.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
           </div>
         </div>
       )}

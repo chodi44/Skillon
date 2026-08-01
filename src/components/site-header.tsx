@@ -32,7 +32,7 @@ export function TopBar({ title, back }: { title?: string; back?: string }) {
         </div>
       )}
       <div className="flex items-center gap-2">
-        <span className="grid h-6 w-6 place-items-center rounded-full bg-butter font-black text-[11px] text-[#12121a]">S</span>
+        <img src="/logo.png" alt="Skillon Logo" className="h-8 w-8 rounded-lg object-cover shadow-sm ring-1 ring-white/10" />
         <div className="font-display text-[15px] text-foreground leading-none">{title ?? "Skillon"}</div>
       </div>
       <div className="flex items-center gap-1.5">
