@@ -11,6 +11,9 @@ export default defineConfig({
     port: 8080,
     strictPort: true,
   },
+  preview: {
+    allowedHosts: true,
+  },
   plugins: [
     tanstackStart({
       server: { entry: "server" },
