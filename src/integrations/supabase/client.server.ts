@@ -11,12 +11,22 @@ function isNewSupabaseApiKey(value: string): boolean {
 
 function createSupabaseFetch(supabaseKey: string): typeof fetch {
   return (input, init) => {
-    const headers = new Headers(
-      typeof Request !== 'undefined' && input instanceof Request ? input.headers : undefined,
-    );
+    const headers = new Headers();
+
+    if (typeof Request !== 'undefined' && input instanceof Request && input.headers) {
+      input.headers.forEach((value, key) => headers.set(key, value));
+    }
 
     if (init?.headers) {
-      new Headers(init.headers).forEach((value, key) => headers.set(key, value));
+      if (init.headers instanceof Headers) {
+        init.headers.forEach((value, key) => headers.set(key, value));
+      } else if (Array.isArray(init.headers)) {
+        init.headers.forEach(([key, value]) => headers.set(key, value));
+      } else {
+        Object.entries(init.headers).forEach(([key, value]) => {
+          if (value !== undefined) headers.set(key, value as string);
+        });
+      }
     }
 
     // New Supabase API keys are opaque strings, not bearer JWTs.
